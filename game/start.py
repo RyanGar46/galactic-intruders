@@ -1,6 +1,6 @@
 import pygame
 import sys
-import objects
+import game.objects
 from pygame.locals import *
 
 pygame.init()
@@ -17,19 +17,21 @@ FramePerSec = pygame.time.Clock()
 displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Game")
  
-PT1 = objects.Platform(WIDTH, 100)
-P1 = objects.Player(10, 10)
+PT1 = game.objects.Platform(WIDTH, 100)
+PLAYER = game.objects.Player(10, 10)
 
 def start():
     all_sprites = pygame.sprite.Group()
     all_sprites.add(PT1)
-    all_sprites.add(P1)
+    all_sprites.add(PLAYER)
     
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
+            
+            PLAYER.checkMovement(event)
         
         displaysurface.fill((0, 0, 0))
     
