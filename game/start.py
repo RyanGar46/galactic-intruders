@@ -31,7 +31,7 @@ def start():
                 pygame.quit()
                 sys.exit()
             
-            PLAYER.checkMovement(event)
+        PLAYER.checkMovement()
         
         displaysurface.fill((0, 0, 0))
     

@@ -18,8 +18,8 @@ class Player(pygame.sprite.Sprite):
         """
         control player movement
         """
-        self.moveX += vec.x
-        self.moveY += vec.y
+        self.moveX = vec.x
+        self.moveY = -vec.y
 
     def update(self):
         """
@@ -28,23 +28,18 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = self.rect.x + self.moveX
         self.rect.y = self.rect.y + self.moveY
 
-    def checkMovement(self, event: pygame.event):
+    def checkMovement(self):
         """
         Determains if and where the player should move
         """
-        if event.type == pygame.KEYDOWN:
-            direction = Vector2(0, 0)
-            if event.key == pygame.K_RIGHT:
-                direction.x += 1
-            if event.key == pygame.K_LEFT:
-                direction.x -= 1
-            if event.key == pygame.K_UP:
-                direction.y += 1
-            if event.key == pygame.K_DOWN:
-                direction.y -= 1
+        keys = pygame.key.get_pressed()
 
-            self.move(direction)
-            self.update()
+        direction = Vector2(0, 0)
+        direction.x += keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]
+        direction.y += keys[pygame.K_UP] - keys[pygame.K_DOWN]
+
+        self.move(direction)
+        self.update()
  
 class Platform(pygame.sprite.Sprite):
     def __init__(self, width: int, height: int):
