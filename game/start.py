@@ -16,22 +16,20 @@ FramePerSec = pygame.time.Clock()
  
 displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Game")
- 
-PT1 = game.objects.Platform(WIDTH, 100)
+
 PLAYER = game.objects.Player(10, 10)
 
+all_sprites = pygame.sprite.Group()
+all_sprites.add(PLAYER)
+
 def start():
-    all_sprites = pygame.sprite.Group()
-    all_sprites.add(PT1)
-    all_sprites.add(PLAYER)
-    
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
             
-        PLAYER.checkMovement()
+        PLAYER.checkInput()
         
         displaysurface.fill((0, 0, 0))
     
