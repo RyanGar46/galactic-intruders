@@ -1,11 +1,11 @@
 import pygame
 import sys
 import game.objects
+from pygame import Vector2
 from pygame.locals import *
 
 pygame.init()
-vec = pygame.math.Vector2
- 
+
 HEIGHT = 450
 WIDTH = 400
 ACC = 0.5
@@ -17,7 +17,7 @@ FramePerSec = pygame.time.Clock()
 displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Game")
 
-PLAYER = game.objects.Player(10, 10)
+PLAYER = game.objects.Player(10, 10, Vector2(WIDTH / 2, HEIGHT - 32))
 
 all_sprites = pygame.sprite.Group()
 all_sprites.add(PLAYER)
