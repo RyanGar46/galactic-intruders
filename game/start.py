@@ -20,9 +20,13 @@ pygame.display.set_caption("Game")
 PLAYER = game.objects.Player(10, 10, Vector2(WIDTH / 2, HEIGHT - 32), 10)
 
 all_sprites = pygame.sprite.Group()
-all_sprites.add(PLAYER)
 
 def start():
+    all_sprites.add(PLAYER)
+
+    for enemy in range(10):
+        all_sprites.add(game.objects.Enemy(10, 10, Vector2(10, 10), 10))
+
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:

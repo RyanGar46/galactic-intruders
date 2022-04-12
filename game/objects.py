@@ -112,10 +112,10 @@ class Player(LivingSprite):
             self.fireCooldown = 0.5
 
     def onCollide(self, projectile: Projectile):
-        if (projectile.origin is not self):
+        if projectile.origin is not self:
             self.kill()
 
 
 class Enemy(LivingSprite):
-    def __init__(self, sizeX: int, sizeY: int, position: Vector2, velocity: Vector2, health):
-        super().__init__(sizeX, sizeY, position, velocity, health)
+    def __init__(self, sizeX: int, sizeY: int, position: Vector2, health):
+        super().__init__(sizeX, sizeY, position, Vector2(0, 0), health)
