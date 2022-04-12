@@ -30,6 +30,12 @@ class MoveableSprite(pygame.sprite.Sprite):
         self.rect.x += self.velocity.x
         self.rect.y -= self.velocity.y
 
+    def onCollide(self):
+        pass
+
+    def remove(self):
+        game.start.all_sprites.remove(self)
+
 
 class LivingSprite(MoveableSprite):
     def __init__(self, sizeX: int, sizeY: int, position: Vector2, velocity: Vector2, health: int):
@@ -52,7 +58,13 @@ class LivingSprite(MoveableSprite):
         self.set_health(self.get_health() + health)
 
     def kill(self):
-        game.start.all_sprites.remove(self)
+        self.remove
+
+
+class Projectile(MoveableSprite):
+    def __init__(self, width: int, height: int, position: Vector2, velocity: Vector2, origin: LivingSprite):
+        super().__init__(width, height, position, velocity)
+        self.origin = origin
 
 
 class Player(LivingSprite):
@@ -94,14 +106,14 @@ class Player(LivingSprite):
 
         # Projectile
         if self.fireCooldown <= 0 and mouse[0]:
-            projectile = Projectile(5, 5, Vector2(self.rect.x + (self.size.x / 2) - 2.5, self.rect.y + (self.size.y / 2) - 2.5), Vector2(0, 1))
+            projectile = Projectile(5, 5, Vector2(self.rect.x + (self.size.x / 2) - 2.5, self.rect.y + (self.size.y / 2) - 2.5), Vector2(0, 1), self)
             game.start.all_sprites.add(projectile)
             self.projectiles.append(projectile)
             self.fireCooldown = 0.5
 
-class Projectile(MoveableSprite):
-    def __init__(self, width: int, height: int, position: Vector2, velocity: Vector2):
-        super().__init__(width, height, position, velocity)
+    def onCollide(self, projectile: Projectile):
+        if (projectile.origin is not self):
+            self.kill()
 
 
 class Enemy(LivingSprite):
