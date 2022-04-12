@@ -30,9 +30,33 @@ class MoveableSprite(pygame.sprite.Sprite):
         self.rect.y -= self.velocity.y
 
 
-class Player(MoveableSprite):
-    def __init__(self, sizeX: int, sizeY: int, position: Vector2):
-        super().__init__(sizeX, sizeY, position, Vector2(0, 0))
+class LivingSprite(MoveableSprite):
+    def __init__(self, sizeX: int, sizeY: int, position: Vector2, velocity: Vector2, health: int):
+        super().__init__(sizeX, sizeY, position, velocity)
+        self.set_health(health)
+
+    def update(self):
+        super().update()
+        
+        if (self.get_health() <= 0):
+            self.kill()
+
+    def get_health(self) -> int:
+        return self._health
+
+    def set_health(self, health: int):
+        self._health = health
+
+    def add_health(self, health: int):
+        self.set_health(self.get_health() + health)
+
+    def kill(self):
+        game.start.all_sprites.remove(self)
+
+
+class Player(LivingSprite):
+    def __init__(self, sizeX: int, sizeY: int, position: Vector2, health: int):
+        super().__init__(sizeX, sizeY, position, Vector2(0, 0), health)
 
         self.projectiles = []
         self.fireCooldown = 0
@@ -47,8 +71,6 @@ class Player(MoveableSprite):
 
         if self.fireCooldown > 0:
             self.fireCooldown = max((0, self.fireCooldown - self.deltaTime))
-
-        print(self.fireCooldown)
         
         # Update projectiles
         for projectile in self.projectiles:
@@ -66,7 +88,6 @@ class Player(MoveableSprite):
         # Movement
         direction = Vector2(0, 0)
         direction.x += keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]
-        direction.y += keys[pygame.K_UP] - keys[pygame.K_DOWN]
         self.velocity = direction
         self.update()
 
@@ -77,7 +98,11 @@ class Player(MoveableSprite):
             self.projectiles.append(projectile)
             self.fireCooldown = 0.5
 
- 
 class Projectile(MoveableSprite):
     def __init__(self, width: int, height: int, position: Vector2, velocity: Vector2):
         super().__init__(width, height, position, velocity)
+
+
+class Enemy(LivingSprite):
+    def __init__(self, sizeX: int, sizeY: int, position: Vector2, velocity: Vector2, health):
+        super().__init__(sizeX, sizeY, position, velocity, health)

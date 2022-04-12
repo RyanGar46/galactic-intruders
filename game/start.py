@@ -17,7 +17,7 @@ FramePerSec = pygame.time.Clock()
 displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Game")
 
-PLAYER = game.objects.Player(10, 10, Vector2(WIDTH / 2, HEIGHT - 32))
+PLAYER = game.objects.Player(10, 10, Vector2(WIDTH / 2, HEIGHT - 32), 10)
 
 all_sprites = pygame.sprite.Group()
 all_sprites.add(PLAYER)
