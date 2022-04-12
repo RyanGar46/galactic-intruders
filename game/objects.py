@@ -8,6 +8,7 @@ import game.start
 class MoveableSprite(pygame.sprite.Sprite):
     def __init__(self, sizeX: int, sizeY: int, position: Vector2, velocity: Vector2):
         super().__init__()
+        self.size = Vector2(sizeX, sizeY)
         self.surf = pygame.Surface((sizeX, sizeY))
         self.surf.fill((128, 255, 40))
         self.rect = self.surf.get_rect(center = (sizeX / 2, sizeY / 2))
@@ -93,7 +94,7 @@ class Player(LivingSprite):
 
         # Projectile
         if self.fireCooldown <= 0 and mouse[0]:
-            projectile = Projectile(5, 5, Vector2(self.rect.x, self.rect.y), Vector2(0, 1))
+            projectile = Projectile(5, 5, Vector2(self.rect.x + (self.size.x / 2) - 2.5, self.rect.y + (self.size.y / 2) - 2.5), Vector2(0, 1))
             game.start.all_sprites.add(projectile)
             self.projectiles.append(projectile)
             self.fireCooldown = 0.5
