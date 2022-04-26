@@ -1,4 +1,6 @@
 from shutil import move
+from this import d
+from typing import overload
 import pygame
 import time
 from pygame import Vector2
@@ -30,9 +32,6 @@ class MoveableSprite(pygame.sprite.Sprite):
         self.rect.x += self.velocity.x
         self.rect.y -= self.velocity.y
 
-    def onCollide(self):
-        pass
-
     def remove(self):
         game.start.all_sprites.remove(self)
 
@@ -58,13 +57,24 @@ class LivingSprite(MoveableSprite):
         self.set_health(self.get_health() + health)
 
     def kill(self):
-        self.remove
+        self.remove()
 
 
 class Projectile(MoveableSprite):
     def __init__(self, width: int, height: int, position: Vector2, velocity: Vector2, origin: LivingSprite):
         super().__init__(width, height, position, velocity)
         self.origin = origin
+
+    def update(self):
+        super().update()
+
+        for enemy in game.start.ENEMIES:
+            if enemy.rect.collidepoint(self.rect.center):
+                self.onCollision(enemy)
+
+    def onCollision(self, other: LivingSprite):
+        self.kill()
+        other.kill()
 
 
 class Player(LivingSprite):

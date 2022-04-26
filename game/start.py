@@ -21,11 +21,17 @@ PLAYER = game.objects.Player(10, 10, Vector2(WIDTH / 2, HEIGHT - 32), 10)
 
 all_sprites = pygame.sprite.Group()
 
+ENEMIES = []
+
+for y in range(5):
+    for x in range(20):
+        ENEMIES.append(game.objects.Enemy(10, 10, Vector2(x * 20, y * 20), 10))
+
 def start():
     all_sprites.add(PLAYER)
 
-    for enemy in range(10):
-        all_sprites.add(game.objects.Enemy(10, 10, Vector2(10, 10), 10))
+    for enemy in ENEMIES:
+        all_sprites.add(enemy)
 
     while True:
         for event in pygame.event.get():
