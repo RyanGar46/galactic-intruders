@@ -156,8 +156,8 @@ class Enemy(LivingSprite):
                 self.add_position(0, 10)
                 self.direction *= -1
 
-            self.move_timer = 0.25
             self.moves += 1
+            self.move_timer = self.moves ** -0.5
         else:
             self.move_timer -= self.deltaTime
       
