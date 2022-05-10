@@ -29,6 +29,15 @@ class MoveableSprite(pygame.sprite.Sprite):
         self.rect.x += self.velocity.x
         self.rect.y -= self.velocity.y
 
+
+    def set_position(self, x: float, y: float):
+        self.rect.x = x
+        self.rect.y = y
+
+
+    def add_position(self, x: float, y: float):
+        self.set_position(self.rect.x + x, self.rect.y + y)
+
     def remove(self):
         game.start.all_sprites.remove(self)
         del self
@@ -131,6 +140,28 @@ class Player(LivingSprite):
 class Enemy(LivingSprite):
     def __init__(self, sizeX: int, sizeY: int, position: Vector2, health):
         super().__init__(sizeX, sizeY, position, Vector2(0, 0), health)
+
+        self.move_timer = 0
+        self.moves = 0
+        self.direction = 1
+
+    def update(self):
+        super().update()
+
+        if self.move_timer <= 0:
+            self.add_position(2.5 * self.direction, 0)
+
+            # Flip direction
+            if self.moves % 15 == 0:
+                self.add_position(0, 10)
+                self.direction *= -1
+
+            self.move_timer = 0.25
+            self.moves += 1
+        else:
+            self.move_timer -= self.deltaTime
+      
+        self.updatePosition()
 
     def kill(self):
         game.start.ENEMIES.remove(self)

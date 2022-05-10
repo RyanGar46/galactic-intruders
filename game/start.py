@@ -23,9 +23,12 @@ all_sprites = pygame.sprite.Group()
 
 ENEMIES = []
 
-for y in range(5):
-    for x in range(20):
-        ENEMIES.append(game.objects.Enemy(10, 10, Vector2(x * 20, y * 20), 10))
+ENEMIES_X = 11
+ENEMIES_Y = 5
+
+for y in range(ENEMIES_Y):
+    for x in range(ENEMIES_X):
+        ENEMIES.append(game.objects.Enemy(10, 10, Vector2((x * 20) + (WIDTH / 2) - (ENEMIES_X * 10), (y * 20) + 20), 10))
 
 def start():
     all_sprites.add(PLAYER)
@@ -40,6 +43,9 @@ def start():
                 sys.exit()
             
         PLAYER.checkInput()
+
+        for enemy in ENEMIES:
+            enemy.update()
         
         displaysurface.fill((0, 0, 0))
     
