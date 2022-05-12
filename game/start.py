@@ -17,7 +17,7 @@ FramePerSec = pygame.time.Clock()
 displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Game")
 
-PLAYER = game.objects.Player(10, 10, Vector2(WIDTH / 2, HEIGHT - 32), 10)
+PLAYER = game.objects.Player(32, 16, Vector2(WIDTH / 2, HEIGHT - 32), 10)
 
 all_sprites = pygame.sprite.Group()
 
@@ -28,7 +28,8 @@ ENEMIES_Y = 5
 
 for y in range(ENEMIES_Y):
     for x in range(ENEMIES_X):
-        ENEMIES.append(game.objects.Enemy(10, 10, Vector2((x * 20) + (WIDTH / 2) - (ENEMIES_X * 10), (y * 20) + 20), 10))
+        size = Vector2(32, 16)
+        ENEMIES.append(game.objects.Enemy(32, 16, Vector2((x * size.x) + (WIDTH / 2) - (ENEMIES_X * size.x / 2), (y * size.y) + 20), 10))
 
 def start():
     all_sprites.add(PLAYER)

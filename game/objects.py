@@ -1,4 +1,4 @@
-import pygame
+import pygame, os
 import time
 from pygame import Vector2
 import game.start
@@ -8,8 +8,7 @@ class MoveableSprite(pygame.sprite.Sprite):
     def __init__(self, sizeX: int, sizeY: int, position: Vector2, velocity: Vector2):
         super().__init__()
         self.size = Vector2(sizeX, sizeY)
-        self.surf = pygame.Surface((sizeX, sizeY))
-        self.surf.fill((128, 255, 40))
+        self.surf = pygame.transform.scale(self.get_texture(), self.size)
         self.rect = self.surf.get_rect(center = (sizeX / 2, sizeY / 2))
         self.rect.x += position.x
         self.rect.y += position.y
@@ -41,6 +40,11 @@ class MoveableSprite(pygame.sprite.Sprite):
     def remove(self):
         game.start.all_sprites.remove(self)
         del self
+
+    def get_texture(self) -> pygame.Surface:
+        surface = pygame.Surface((1, 1))
+        surface.fill((128, 255, 40))
+        return surface
 
 
 class LivingSprite(MoveableSprite):
@@ -136,28 +140,33 @@ class Player(LivingSprite):
         if projectile.origin is not self:
             self.kill()
 
+    def get_texture(self) -> pygame.Surface:
+        return pygame.image.load("assets/textures/player.png")
+
 
 class Enemy(LivingSprite):
     def __init__(self, sizeX: int, sizeY: int, position: Vector2, health):
         super().__init__(sizeX, sizeY, position, Vector2(0, 0), health)
 
         self.move_timer = 0
-        self.moves = 0
+        self.moves = 15
         self.direction = 1
+        self.rows = 1
 
     def update(self):
         super().update()
 
         if self.move_timer <= 0:
-            self.add_position(2.5 * self.direction, 0)
+            self.add_position(2 * self.direction, 0)
 
             # Flip direction
-            if self.moves % 15 == 0:
+            if self.moves % 25 == 0:
                 self.add_position(0, 10)
                 self.direction *= -1
+                self.rows += 1
 
             self.moves += 1
-            self.move_timer = self.moves ** -0.5
+            self.move_timer = (self.rows * 10) ** -0.5
         else:
             self.move_timer -= self.deltaTime
       
@@ -166,3 +175,6 @@ class Enemy(LivingSprite):
     def kill(self):
         game.start.ENEMIES.remove(self)
         super().kill()
+
+    def get_texture(self) -> pygame.Surface:
+        return pygame.image.load("assets/textures/enemy_1.png")
