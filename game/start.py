@@ -4,6 +4,8 @@ import game.objects
 from pygame import Vector2
 from pygame.locals import *
 
+from game.util import get_texture_path
+
 pygame.init()
 
 HEIGHT = 450
@@ -15,7 +17,8 @@ FPS = 60
 FramePerSec = pygame.time.Clock()
  
 displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Game")
+pygame.display.set_caption("Galactic Intruders")
+pygame.display.set_icon(get_texture_path("icon"))
 
 PLAYER = game.objects.Player(32, 16, Vector2(WIDTH / 2, HEIGHT - 32), 10)
 
@@ -29,7 +32,7 @@ ENEMIES_Y = 5
 for y in range(ENEMIES_Y):
     for x in range(ENEMIES_X):
         size = Vector2(32, 16)
-        ENEMIES.append(game.objects.Enemy(32, 16, Vector2((x * size.x) + (WIDTH / 2) - (ENEMIES_X * size.x / 2), (y * size.y) + 20), 10))
+        ENEMIES.append(game.objects.Enemy(size.x, size.y, Vector2((x * size.x) + (WIDTH / 2) - (ENEMIES_X * size.x / 2), (y * size.y) + 20), 10))
 
 def start():
     all_sprites.add(PLAYER)

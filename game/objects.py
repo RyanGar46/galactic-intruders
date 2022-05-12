@@ -1,7 +1,9 @@
 import pygame, os
 import time
 from pygame import Vector2
+
 import game.start
+from game.util import get_texture_path
 
 
 class MoveableSprite(pygame.sprite.Sprite):
@@ -141,7 +143,7 @@ class Player(LivingSprite):
             self.kill()
 
     def get_texture(self) -> pygame.Surface:
-        return pygame.image.load("assets/textures/player.png")
+        return get_texture_path("player")
 
 
 class Enemy(LivingSprite):
@@ -177,4 +179,4 @@ class Enemy(LivingSprite):
         super().kill()
 
     def get_texture(self) -> pygame.Surface:
-        return pygame.image.load("assets/textures/enemy_1.png")
+        return get_texture_path("enemy_1")
