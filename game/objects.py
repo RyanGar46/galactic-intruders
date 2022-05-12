@@ -4,6 +4,7 @@ from pygame import Vector2
 
 import game.start
 from game.util import get_texture_path
+from game.input import *
 
 
 class MoveableSprite(pygame.sprite.Sprite):
@@ -116,23 +117,19 @@ class Player(LivingSprite):
         for projectile in self.projectiles:
             projectile.update()
 
-    def checkInput(self):
+    def checkInput(self, keys, mouse):
         """
         Handles the player's input
         """
-        keys = pygame.key.get_pressed()
-
-        # leftclick, middleclick, rightclick
-        mouse = pygame.mouse.get_pressed()
 
         # Movement
         direction = Vector2(0, 0)
-        direction.x += keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]
+        direction.x += get_key_right(keys) - get_key_left(keys)
         self.velocity = direction
         self.update()
 
         # Projectile
-        if self.fireCooldown <= 0 and mouse[0]:
+        if self.fireCooldown <= 0 and get_key_fire(keys, mouse):
             projectile = Projectile(5, 5, Vector2(self.rect.x + (self.size.x / 2) - 2.5, self.rect.y + (self.size.y / 2) - 2.5), Vector2(0, 1), self)
             game.start.all_sprites.add(projectile)
             self.projectiles.append(projectile)

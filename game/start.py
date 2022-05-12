@@ -46,7 +46,12 @@ def start():
                 pygame.quit()
                 sys.exit()
             
-        PLAYER.checkInput()
+        keys = pygame.key.get_pressed()
+        
+        # leftclick, middleclick, rightclick
+        mouse = pygame.mouse.get_pressed()
+
+        PLAYER.checkInput(keys, mouse)
 
         for enemy in ENEMIES:
             enemy.update()
