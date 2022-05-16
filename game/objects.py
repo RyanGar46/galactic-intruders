@@ -3,7 +3,7 @@ import time
 from pygame import Vector2
 
 import game.start
-from game.util import get_texture_path
+from game.util import get_texture
 from game.input import *
 
 
@@ -12,7 +12,7 @@ class MoveableSprite(pygame.sprite.Sprite):
         super().__init__()
         self.size = Vector2(sizeX, sizeY)
         self.surf = pygame.transform.scale(self.get_texture(), self.size)
-        self.rect = self.surf.get_rect(center = (sizeX / 2, sizeY / 2))
+        self.rect = self.surf.get_rect(center = (sizeX // 2, sizeY // 2))
         self.rect.x += position.x
         self.rect.y += position.y
         self.velocity = velocity
@@ -41,7 +41,7 @@ class MoveableSprite(pygame.sprite.Sprite):
         self.set_position(self.rect.x + x, self.rect.y + y)
 
     def remove(self):
-        game.start.all_sprites.remove(self)
+        game.start.remove_entity(self)
         del self
 
     def get_texture(self) -> pygame.Surface:
@@ -54,6 +54,8 @@ class LivingSprite(MoveableSprite):
     def __init__(self, sizeX: int, sizeY: int, position: Vector2, velocity: Vector2, health: int):
         super().__init__(sizeX, sizeY, position, velocity)
         self.set_health(health)
+
+        self.kills = 0
 
     def update(self):
         super().update()
@@ -73,6 +75,9 @@ class LivingSprite(MoveableSprite):
     def kill(self):
         self.remove()
 
+    def on_kill_enemy(self, enemy: "LivingSprite"):
+        self.kills += 1
+
 
 class Projectile(MoveableSprite):
     def __init__(self, width: int, height: int, position: Vector2, velocity: Vector2, origin: "Player"):
@@ -89,10 +94,11 @@ class Projectile(MoveableSprite):
     def onCollision(self, other: LivingSprite):
         self.kill()
         other.kill()
+        self.origin.on_kill_enemy(other)
 
     def kill(self):
         self.origin.projectiles.remove(self)
-        super().kill()
+        super().remove()
 
 
 class Player(LivingSprite):
@@ -131,7 +137,7 @@ class Player(LivingSprite):
         # Projectile
         if self.fireCooldown <= 0 and get_key_fire(keys, mouse):
             projectile = Projectile(5, 5, Vector2(self.rect.x + (self.size.x / 2) - 2.5, self.rect.y + (self.size.y / 2) - 2.5), Vector2(0, 1), self)
-            game.start.all_sprites.add(projectile)
+            game.start.add_entity(projectile)
             self.projectiles.append(projectile)
             self.fireCooldown = 0.5
 
@@ -140,7 +146,7 @@ class Player(LivingSprite):
             self.kill()
 
     def get_texture(self) -> pygame.Surface:
-        return get_texture_path("player")
+        return get_texture("player")
 
 
 class Enemy(LivingSprite):
@@ -176,4 +182,15 @@ class Enemy(LivingSprite):
         super().kill()
 
     def get_texture(self) -> pygame.Surface:
-        return get_texture_path("enemy_1")
+        return get_texture("enemy_1")
+
+
+class Text:
+    def __init__(self, font: pygame.font.Font, text: str, color: tuple[int], position: Vector2):
+        self.surf = font.render(text, False, color)
+        self.rect = self.surf.get_rect()
+        self.rect.x = position.x
+        self.rect.y = position.y
+
+        game.start.texts.append(self)
+
