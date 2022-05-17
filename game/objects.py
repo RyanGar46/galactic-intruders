@@ -1,10 +1,11 @@
-import pygame, os
 import time
-from pygame import Vector2
+
+import pygame
+from pygame.math import Vector2
 
 import game.start
+from game.input import get_key_right, get_key_left, get_key_fire
 from game.util import get_texture
-from game.input import *
 
 
 class MoveableSprite(pygame.sprite.Sprite):
@@ -12,7 +13,7 @@ class MoveableSprite(pygame.sprite.Sprite):
         super().__init__()
         self.size = Vector2(sizeX, sizeY)
         self.surf = pygame.transform.scale(self.get_texture(), self.size)
-        self.rect = self.surf.get_rect(center = (sizeX // 2, sizeY // 2))
+        self.rect = self.surf.get_rect(center=(sizeX // 2, sizeY // 2))
         self.rect.x += position.x
         self.rect.y += position.y
         self.velocity = velocity
@@ -20,22 +21,20 @@ class MoveableSprite(pygame.sprite.Sprite):
         self.currentTime = time.time()
 
     def update(self):
-        self.updatePosition()
+        self.update_position()
         self.deltaTime = time.time() - self.currentTime
         self.currentTime = time.time()
 
-    def updatePosition(self):
+    def update_position(self):
         """
         Update sprite position
         """
         self.rect.x += self.velocity.x
         self.rect.y -= self.velocity.y
 
-
     def set_position(self, x: float, y: float):
         self.rect.x = x
         self.rect.y = y
-
 
     def add_position(self, x: float, y: float):
         self.set_position(self.rect.x + x, self.rect.y + y)
@@ -51,16 +50,16 @@ class MoveableSprite(pygame.sprite.Sprite):
 
 
 class LivingSprite(MoveableSprite):
-    def __init__(self, sizeX: int, sizeY: int, position: Vector2, velocity: Vector2, health: int):
-        super().__init__(sizeX, sizeY, position, velocity)
-        self.set_health(health)
+    def __init__(self, size_x: int, size_y: int, position: Vector2, velocity: Vector2, health: int):
+        super().__init__(size_x, size_y, position, velocity)
+        self._health = health
 
         self.kills = 0
 
     def update(self):
         super().update()
-        
-        if (self.get_health() <= 0):
+
+        if self.get_health() <= 0:
             self.kill()
 
     def get_health(self) -> int:
@@ -89,9 +88,9 @@ class Projectile(MoveableSprite):
 
         for enemy in game.start.ENEMIES:
             if enemy.rect.collidepoint(self.rect.center):
-                self.onCollision(enemy)
+                self.on_collision(enemy)
 
-    def onCollision(self, other: LivingSprite):
+    def on_collision(self, other: LivingSprite):
         self.kill()
         other.kill()
         self.origin.on_kill_enemy(other)
@@ -102,8 +101,8 @@ class Projectile(MoveableSprite):
 
 
 class Player(LivingSprite):
-    def __init__(self, sizeX: int, sizeY: int, position: Vector2, health: int):
-        super().__init__(sizeX, sizeY, position, Vector2(0, 0), health)
+    def __init__(self, size_x: int, size_y: int, position: Vector2, health: int):
+        super().__init__(size_x, size_y, position, Vector2(0, 0), health)
 
         self.projectiles = []
         self.fireCooldown = 0
@@ -118,12 +117,12 @@ class Player(LivingSprite):
 
         if self.fireCooldown > 0:
             self.fireCooldown = max((0, self.fireCooldown - self.deltaTime))
-        
+
         # Update projectiles
         for projectile in self.projectiles:
             projectile.update()
 
-    def checkInput(self, keys, mouse):
+    def check_input(self, keys, mouse):
         """
         Handles the player's input
         """
@@ -136,12 +135,13 @@ class Player(LivingSprite):
 
         # Projectile
         if self.fireCooldown <= 0 and get_key_fire(keys, mouse):
-            projectile = Projectile(5, 5, Vector2(self.rect.x + (self.size.x / 2) - 2.5, self.rect.y + (self.size.y / 2) - 2.5), Vector2(0, 1), self)
+            projectile = Projectile(5, 5, Vector2(self.rect.x + (self.size.x / 2) - 2.5,
+                                                  self.rect.y + (self.size.y / 2) - 2.5), Vector2(0, 1), self)
             game.start.add_entity(projectile)
             self.projectiles.append(projectile)
             self.fireCooldown = 0.5
 
-    def onCollide(self, projectile: Projectile):
+    def on_collide(self, projectile: Projectile):
         if projectile.origin is not self:
             self.kill()
 
@@ -150,8 +150,8 @@ class Player(LivingSprite):
 
 
 class Enemy(LivingSprite):
-    def __init__(self, sizeX: int, sizeY: int, position: Vector2, health):
-        super().__init__(sizeX, sizeY, position, Vector2(0, 0), health)
+    def __init__(self, size_x: int, size_y: int, position: Vector2, health):
+        super().__init__(size_x, size_y, position, Vector2(0, 0), health)
 
         self.move_timer = 0
         self.moves = 15
@@ -174,8 +174,8 @@ class Enemy(LivingSprite):
             self.move_timer = (self.rows * 10) ** -0.5
         else:
             self.move_timer -= self.deltaTime
-      
-        self.updatePosition()
+
+        self.update_position()
 
     def kill(self):
         game.start.ENEMIES.remove(self)
@@ -186,11 +186,10 @@ class Enemy(LivingSprite):
 
 
 class Text:
-    def __init__(self, font: pygame.font.Font, text: str, color: tuple[int], position: Vector2):
+    def __init__(self, font: pygame.font.Font, text: str, color: tuple[int, int, int], position: Vector2):
         self.surf = font.render(text, False, color)
         self.rect = self.surf.get_rect()
         self.rect.x = position.x
         self.rect.y = position.y
 
         game.start.texts.append(self)
-

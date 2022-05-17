@@ -1,9 +1,10 @@
-import pygame
 import sys
-import game.objects
-from pygame import Vector2
-from pygame.locals import *
 
+import pygame
+from pygame.locals import *
+from pygame.math import Vector2
+
+import game.objects
 from game.util import get_texture, get_font
 
 pygame.init()
@@ -13,10 +14,10 @@ WIDTH = 400
 ACC = 0.5
 FRIC = -0.12
 FPS = 60
- 
+
 FramePerSec = pygame.time.Clock()
- 
-displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
+
+display_surface = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Galactic Intruders")
 pygame.display.set_icon(get_texture("icon"))
 
@@ -39,17 +40,24 @@ GAME_WON = False
 for y in range(ENEMIES_Y):
     for x in range(ENEMIES_X):
         size = Vector2(32, 16)
-        ENEMIES.append(game.objects.Enemy(size.x, size.y, Vector2((x * size.x) + (WIDTH // 2) - (ENEMIES_X * size.x // 2), (y * size.y) + 20), 10))
+        ENEMIES.append(game.objects.Enemy(int(size.x), int(size.y),
+                                          Vector2((x * size.x) + (WIDTH // 2) - (ENEMIES_X * size.x // 2),
+                                                  (y * size.y) + 20), 10))
+
 
 def add_entity(entity):
     if isinstance(entity, pygame.sprite.Sprite):
-        all_sprites.add(entity)
-    entities.append(entity)
+        if entity not in all_sprites:
+            all_sprites.add(entity)
+    if entity not in entities:
+        entities.append(entity)
+
 
 def remove_entity(entity):
     if isinstance(entity, pygame.sprite.Sprite):
         all_sprites.remove(entity)
     entities.remove(entity)
+
 
 def start():
     global GAME_WON
@@ -73,24 +81,25 @@ def start():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-            
+
         keys = pygame.key.get_pressed()
-        
+
         # leftclick, middleclick, rightclick
         mouse = pygame.mouse.get_pressed()
 
-        PLAYER.checkInput(keys, mouse)
+        PLAYER.check_input(keys, mouse)
 
         for enemy in ENEMIES:
             enemy.update()
-        
-        displaysurface.fill((0, 0, 0))
-    
+
+        display_surface.fill((0, 0, 0))
+
         for entity in entities:
-            displaysurface.blit(entity.surf, entity.rect)
-    
+            display_surface.blit(entity.surf, entity.rect)
+
         pygame.display.update()
         FramePerSec.tick(FPS)
 
+
 def game_win():
-    completion_text = game.objects.Text(FONT, "You Won!", (255, 0, 0), Vector2(WIDTH // 4, HEIGHT // 2))
+    completion_text = game.objects.Text(FONT, "You Won!", (255, 255, 255), Vector2(WIDTH // 4, HEIGHT // 2))
