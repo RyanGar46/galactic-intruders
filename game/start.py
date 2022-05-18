@@ -28,6 +28,7 @@ ENEMIES_X = 11
 ENEMIES_Y = 5
 
 FONT = get_font("main", 32)
+FONT_SMALL = get_font("main", 16)
 
 GAME_WON = False
 
@@ -49,13 +50,14 @@ def create_enemies():
             size = Vector2(32, 16)
             enemies.append(game.objects.Enemy(int(size.x), int(size.y),
                                               Vector2((x * size.x) + (WIDTH // 2) - (ENEMIES_X * size.x // 2),
-                                                      (y * size.y) + 20), 10))
+                                                      (y * size.y) + 30), 10))
 
 
 def start():
     global GAME_WON
     PLAYER = game.objects.Player(32, 16, Vector2(WIDTH // 2, HEIGHT - 32), 10)
     create_enemies()
+    score_text = game.objects.Text(FONT_SMALL, "Score: 000", (255, 255, 255), Vector2(0, 0))
 
     while True:
         # Check win conditions
@@ -77,6 +79,9 @@ def start():
 
         for enemy in enemies:
             enemy.update()
+
+        # Update score
+        score_text.set_text(f"Score: {PLAYER.score}")
 
         display_surface.fill((0, 0, 0))
 

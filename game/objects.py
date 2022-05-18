@@ -113,6 +113,8 @@ class Player(LivingSprite):
         self.moveY = 0
         self.frame = 0
 
+        self.score = 0
+
     def update(self):
         super().update()
 
@@ -151,6 +153,9 @@ class Player(LivingSprite):
 
     def get_texture(self) -> pygame.Surface:
         return get_texture("player")
+
+    def on_kill_enemy(self, enemy: LivingSprite):
+        self.score += 1
 
 
 class Enemy(LivingSprite):
@@ -191,10 +196,15 @@ class Enemy(LivingSprite):
 
 class Text:
     def __init__(self, font: pygame.font.Font, text: str, color: tuple[int, int, int], position: Vector2):
-        self.surf = font.render(text, False, color)
+        self.color = color
+        self.font = font
+        self.surf = self.font.render(text, False, self.color)
         self.rect = self.surf.get_rect()
         self.rect.x = position.x
         self.rect.y = position.y
 
         game.start.texts.append(self)
         game.start.add_entity(self)
+
+    def set_text(self, text: str):
+        self.surf = self.font.render(text, False, self.color)
