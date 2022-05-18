@@ -141,6 +141,10 @@ class Player(LivingSprite):
             self.projectiles.append(projectile)
             self.fireCooldown = 0.5
 
+        # Debug
+        if keys[pygame.K_LCTRL] and keys[pygame.K_LSHIFT] and get_key_fire(keys, mouse):
+            self.fireCooldown = 0
+
     def on_collide(self, projectile: Projectile):
         if projectile.origin is not self:
             self.kill()
