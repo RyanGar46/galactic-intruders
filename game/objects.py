@@ -54,6 +54,7 @@ class LivingSprite(MoveableSprite):
     def __init__(self, size_x: int, size_y: int, position: Vector2, velocity: Vector2, health: int):
         super().__init__(size_x, size_y, position, velocity)
         self._health = health
+        self.value = 0
 
         self.kills = 0
 
@@ -155,17 +156,19 @@ class Player(LivingSprite):
         return get_texture("player")
 
     def on_kill_enemy(self, enemy: LivingSprite):
-        self.score += 1
+        self.score += enemy.value
 
 
 class Enemy(LivingSprite):
-    def __init__(self, size_x: int, size_y: int, position: Vector2, health):
+    def __init__(self, size_x: int, size_y: int, position: Vector2, health, value: int, enemy_type: int):
+        self.enemy_type = enemy_type
         super().__init__(size_x, size_y, position, Vector2(0, 0), health)
 
         self.move_timer = 0
         self.moves = 15
         self.direction = 1
         self.rows = 1
+        self.value = value
 
     def update(self):
         super().update()
@@ -191,7 +194,12 @@ class Enemy(LivingSprite):
         super().kill()
 
     def get_texture(self) -> pygame.Surface:
-        return get_texture("enemy_1")
+        if self.enemy_type == 1:
+            return get_texture("enemy_1")
+        elif self.enemy_type == 2:
+            return get_texture("enemy_2")
+        else:
+            return get_texture("enemy_3")
 
 
 class Text:

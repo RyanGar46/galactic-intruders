@@ -48,9 +48,21 @@ def create_enemies():
     for y in range(ENEMIES_Y):
         for x in range(ENEMIES_X):
             size = Vector2(32, 16)
+
+            # Calculate value
+            if y == 4 or y == 3:
+                enemy_type = 1
+            elif y == 2 or y == 1:
+                enemy_type = 2
+            else:
+                enemy_type = 3
+
             enemies.append(game.objects.Enemy(int(size.x), int(size.y),
                                               Vector2((x * size.x) + (WIDTH // 2) - (ENEMIES_X * size.x // 2),
-                                                      (y * size.y) + 30), 10))
+                                                      (y * size.y) + 30),
+                                              10,
+                                              enemy_type * 10,
+                                              enemy_type))
 
 
 def start():
