@@ -19,6 +19,7 @@ class MoveableSprite(pygame.sprite.Sprite):
         self.velocity = velocity
         self.deltaTime = 0
         self.currentTime = time.time()
+        game.start.add_entity(self)
 
     def update(self):
         self.update_position()
@@ -86,14 +87,14 @@ class Projectile(MoveableSprite):
     def update(self):
         super().update()
 
-        for enemy in game.start.ENEMIES:
+        for enemy in game.start.enemies:
             if enemy.rect.collidepoint(self.rect.center):
                 self.on_collision(enemy)
 
     def on_collision(self, other: LivingSprite):
-        self.kill()
         other.kill()
         self.origin.on_kill_enemy(other)
+        self.kill()
 
     def kill(self):
         self.origin.projectiles.remove(self)
@@ -137,7 +138,6 @@ class Player(LivingSprite):
         if self.fireCooldown <= 0 and get_key_fire(keys, mouse):
             projectile = Projectile(5, 5, Vector2(self.rect.x + (self.size.x / 2) - 2.5,
                                                   self.rect.y + (self.size.y / 2) - 2.5), Vector2(0, 1), self)
-            game.start.add_entity(projectile)
             self.projectiles.append(projectile)
             self.fireCooldown = 0.5
 
@@ -182,7 +182,7 @@ class Enemy(LivingSprite):
         self.update_position()
 
     def kill(self):
-        game.start.ENEMIES.remove(self)
+        game.start.enemies.remove(self)
         super().kill()
 
     def get_texture(self) -> pygame.Surface:
@@ -197,3 +197,4 @@ class Text:
         self.rect.y = position.y
 
         game.start.texts.append(self)
+        game.start.add_entity(self)

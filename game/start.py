@@ -19,36 +19,22 @@ display_surface = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Galactic Intruders")
 pygame.display.set_icon(get_texture("icon"))
 
-PLAYER = game.objects.Player(32, 16, Vector2(WIDTH // 2, HEIGHT - 32), 10)
-
 all_sprites = pygame.sprite.Group()
 entities = []
-
-ENEMIES = []
+enemies = []
+texts = []
 
 ENEMIES_X = 11
 ENEMIES_Y = 5
 
 FONT = get_font("main", 32)
 
-texts = []
-
 GAME_WON = False
-
-for y in range(ENEMIES_Y):
-    for x in range(ENEMIES_X):
-        size = Vector2(32, 16)
-        ENEMIES.append(game.objects.Enemy(int(size.x), int(size.y),
-                                          Vector2((x * size.x) + (WIDTH // 2) - (ENEMIES_X * size.x // 2),
-                                                  (y * size.y) + 20), 10))
-
 
 def add_entity(entity):
     if isinstance(entity, pygame.sprite.Sprite):
-        if entity not in all_sprites:
-            all_sprites.add(entity)
-    if entity not in entities:
-        entities.append(entity)
+        all_sprites.add(entity)
+    entities.append(entity)
 
 
 def remove_entity(entity):
@@ -57,19 +43,21 @@ def remove_entity(entity):
     entities.remove(entity)
 
 
+def create_enemies():
+    for y in range(ENEMIES_Y):
+        for x in range(ENEMIES_X):
+            size = Vector2(32, 16)
+            enemies.append(game.objects.Enemy(int(size.x), int(size.y),
+                                              Vector2((x * size.x) + (WIDTH // 2) - (ENEMIES_X * size.x // 2),
+                                                      (y * size.y) + 20), 10))
+
+
 def start():
     global GAME_WON
-
-    add_entity(PLAYER)
-
-    for enemy in ENEMIES:
-        add_entity(enemy)
+    PLAYER = game.objects.Player(32, 16, Vector2(WIDTH // 2, HEIGHT - 32), 10)
+    create_enemies()
 
     while True:
-        # Add new texts
-        for text in texts:
-            add_entity(text)
-
         # Check win conditions
         if PLAYER.kills >= ENEMIES_X * ENEMIES_Y and not GAME_WON:
             GAME_WON = True
@@ -87,7 +75,7 @@ def start():
 
         PLAYER.check_input(keys, mouse)
 
-        for enemy in ENEMIES:
+        for enemy in enemies:
             enemy.update()
 
         display_surface.fill((0, 0, 0))
