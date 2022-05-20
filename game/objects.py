@@ -139,8 +139,7 @@ class Player(LivingSprite):
 
         # Projectile
         if self.fireCooldown <= 0 and get_key_fire(keys, mouse):
-            projectile = Projectile(2, 8, Vector2(self.rect.x + (self.size.x / 2) - 2.5,
-                                                  self.rect.y + (self.size.y / 2) - 2.5), Vector2(0, 1), self)
+            projectile = Projectile(2, 8, Vector2(self.rect.centerx, self.rect.top + 1), Vector2(0, 1), self)
             self.projectiles.append(projectile)
             self.fireCooldown = 0.5
 
@@ -229,7 +228,7 @@ class Text:
             new_position = position
             new_position.x += offset
             text_obj = Text(font, text, color, new_position)
-            offset += text_obj.rect.bottomright[0]
+            offset += text_obj.rect.right
             final_texts.append(text_obj)
 
         return final_texts
