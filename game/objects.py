@@ -156,6 +156,7 @@ class Player(LivingSprite):
         return get_texture("player")
 
     def on_kill_enemy(self, enemy: LivingSprite):
+        super().on_kill_enemy(enemy)
         self.score += enemy.value
 
 
