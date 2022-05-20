@@ -139,7 +139,7 @@ class Player(LivingSprite):
 
         # Projectile
         if self.fireCooldown <= 0 and get_key_fire(keys, mouse):
-            projectile = Projectile(5, 5, Vector2(self.rect.x + (self.size.x / 2) - 2.5,
+            projectile = Projectile(2, 8, Vector2(self.rect.x + (self.size.x / 2) - 2.5,
                                                   self.rect.y + (self.size.y / 2) - 2.5), Vector2(0, 1), self)
             self.projectiles.append(projectile)
             self.fireCooldown = 0.5
@@ -153,7 +153,7 @@ class Player(LivingSprite):
             self.kill()
 
     def get_texture(self) -> pygame.Surface:
-        return get_texture("player")
+        return get_texture("player", game.start.GREEN)
 
     def on_kill_enemy(self, enemy: LivingSprite):
         super().on_kill_enemy(enemy)
@@ -217,3 +217,19 @@ class Text:
 
     def set_text(self, text: str):
         self.surf = self.font.render(text, False, self.color)
+
+    @staticmethod
+    def get_multicolored_text(font: pygame.font.Font, texts: list[dict], position: Vector2) -> list["Text"]:
+        final_texts = []
+        offset = 0
+
+        for section in texts:
+            text = section["text"]
+            color = section["color"]
+            new_position = position
+            new_position.x += offset
+            text_obj = Text(font, text, color, new_position)
+            offset += text_obj.rect.bottomright[0]
+            final_texts.append(text_obj)
+
+        return final_texts

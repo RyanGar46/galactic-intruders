@@ -13,6 +13,10 @@ HEIGHT = 450
 WIDTH = 400
 FPS = 60
 
+# Colors
+WHITE = 255, 255, 255
+GREEN = 0, 255, 0
+
 FramePerSec = pygame.time.Clock()
 
 display_surface = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -69,7 +73,16 @@ def start():
     global GAME_WON
     PLAYER = game.objects.Player(32, 16, Vector2(WIDTH // 2, HEIGHT - 32), 10)
     create_enemies()
-    score_text = game.objects.Text(FONT_SMALL, "Score: 000", (255, 255, 255), Vector2(0, 0))
+    score_text_title, score_text = game.objects.Text.get_multicolored_text(FONT_SMALL, [
+        {
+            "text": "SCORE: ",
+            "color": WHITE
+        },
+        {
+            "text": "000",
+            "color": GREEN
+        }
+    ], Vector2(0, 0))
 
     while True:
         # Check win conditions
@@ -93,7 +106,7 @@ def start():
             enemy.update()
 
         # Update score
-        score_text.set_text(f"Score: {PLAYER.score}")
+        score_text.set_text(str(PLAYER.score))
 
         display_surface.fill((0, 0, 0))
 
