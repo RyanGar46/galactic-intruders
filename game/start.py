@@ -30,6 +30,7 @@ entities = []
 enemies = []
 texts = []
 projectiles = []
+shields = []
 
 ENEMIES_X = 11
 ENEMIES_Y = 5
@@ -105,6 +106,8 @@ def start():
         }
     ], Vector2(0, HEIGHT - 16))
 
+    game.objects.Shield.create_shield(WIDTH, 8, Vector2(0, HEIGHT // 2))
+
     while True:
         # Check win conditions
         if PLAYER is not None:
@@ -131,6 +134,9 @@ def start():
         for projectile in projectiles:
             projectile.update()
 
+        for shield in shields:
+            shield.update()
+
         # Update UI
         if PLAYER is not None:
             score_text.set_text(str(PLAYER.score))
@@ -147,6 +153,7 @@ def start():
 
 def game_win():
     completion_text = game.objects.Text(FONT, "YOU WON!", GREEN, Vector2(80, HEIGHT // 2))
+
 
 def game_fail():
     fail_text = game.objects.Text(FONT, "YOU FAILED!", RED, Vector2(40, HEIGHT // 2))

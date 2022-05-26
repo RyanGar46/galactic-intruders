@@ -10,11 +10,11 @@ from game.util import get_texture
 
 
 class MoveableSprite(pygame.sprite.Sprite):
-    def __init__(self, sizeX: int, sizeY: int, position: Vector2, velocity: Vector2):
+    def __init__(self, size_x: int, size_y: int, position: Vector2, velocity: Vector2):
         super().__init__()
-        self.size = Vector2(sizeX, sizeY)
+        self.size = Vector2(size_x, size_y)
         self.surf = pygame.transform.scale(self.get_texture(), self.size)
-        self.rect = self.surf.get_rect(center=(sizeX // 2, sizeY // 2))
+        self.rect = self.surf.get_rect(center=(size_x // 2, size_y // 2))
         self.rect.x += position.x
         self.rect.y += position.y
         self.velocity = velocity
@@ -93,12 +93,18 @@ class Projectile(MoveableSprite):
 
         if isinstance(self.origin, Enemy):
             if game.start.PLAYER is not None:
-                if game.start.PLAYER.rect.collidepoint(self.rect.center):
+                collision = self.rect.colliderect(game.start.PLAYER.rect)
+                if collision:
                     self.on_collision(game.start.PLAYER)
         elif isinstance(self.origin, Player):
-            for enemy in game.start.enemies:
-                if enemy.rect.collidepoint(self.rect.center):
-                    self.on_collision(enemy)
+            collision = self.rect.collidelist(game.start.enemies)
+            if collision != -1:
+                self.on_collision(game.start.enemies[collision])
+
+        # Sheilds
+        for shield in game.start.shields:
+            if shield.rect.collidepoint(self.rect.center):
+                self.on_collision(shield)
 
     def on_collision(self, other: LivingSprite):
         other.kill()
@@ -221,6 +227,22 @@ class Enemy(LivingSprite):
         else:
             return get_texture("enemy_3")
 
+
+class Shield(LivingSprite):
+    def __init__(self, size: Vector2, position: Vector2):
+        super().__init__(size.x, size.y, position, Vector2(0, 0), 1)
+        game.start.shields.append(self)
+    
+    def kill(self):
+        super().kill()
+        game.start.shields.remove(self)
+
+    @staticmethod
+    def create_shield(size_x: int, size_y: int, position: Vector2):
+        shield_size = 4
+        for y in range(size_y):
+            for x in range(size_x):
+                Shield(Vector2(shield_size, shield_size), Vector2(position.x + (x * shield_size), position.y + (y * shield_size)))
 
 class Text:
     def __init__(self, font: pygame.font.Font, text: str, color: tuple[int, int, int], position: Vector2):
