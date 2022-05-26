@@ -14,8 +14,10 @@ WIDTH = 400
 FPS = 60
 
 # Colors
-WHITE = 255, 255, 255
+RED = 255, 0, 0
 GREEN = 0, 255, 0
+BLUE = 0, 0, 255
+WHITE = 255, 255, 255
 
 FramePerSec = pygame.time.Clock()
 
@@ -27,14 +29,18 @@ all_sprites = pygame.sprite.Group()
 entities = []
 enemies = []
 texts = []
+projectiles = []
 
 ENEMIES_X = 11
 ENEMIES_Y = 5
+
+PLAYER = None
 
 FONT = get_font("main", 32)
 FONT_SMALL = get_font("main", 16)
 
 GAME_WON = False
+GAME_FAIL = False
 
 def add_entity(entity):
     if isinstance(entity, pygame.sprite.Sprite):
@@ -45,7 +51,10 @@ def add_entity(entity):
 def remove_entity(entity):
     if isinstance(entity, pygame.sprite.Sprite):
         all_sprites.remove(entity)
-    entities.remove(entity)
+    try:
+        entities.remove(entity)
+    except ValueError:
+        print("Can't remove, entity doesn't exist")
 
 
 def create_enemies():
@@ -71,6 +80,7 @@ def create_enemies():
 
 def start():
     global GAME_WON
+    global PLAYER
     PLAYER = game.objects.Player(32, 16, Vector2(WIDTH // 2, HEIGHT - 32), 10)
     create_enemies()
     score_text_title, score_text = game.objects.Text.get_multicolored_text(FONT_SMALL, [
@@ -84,11 +94,23 @@ def start():
         }
     ], Vector2(0, 0))
 
+    lives_text_title, lives_text = game.objects.Text.get_multicolored_text(FONT_SMALL, [
+        {
+            "text": "LIVES: ",
+            "color": WHITE
+        },
+        {
+            "text": "000",
+            "color": GREEN
+        }
+    ], Vector2(0, HEIGHT - 16))
+
     while True:
         # Check win conditions
-        if PLAYER.kills >= ENEMIES_X * ENEMIES_Y and not GAME_WON:
-            GAME_WON = True
-            game_win()
+        if PLAYER is not None:
+            if len(enemies) == 0 and not GAME_WON:
+                GAME_WON = True
+                game_win()
 
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -100,13 +122,19 @@ def start():
         # leftclick, middleclick, rightclick
         mouse = pygame.mouse.get_pressed()
 
-        PLAYER.check_input(keys, mouse)
+        if PLAYER is not None:
+            PLAYER.check_input(keys, mouse)
 
         for enemy in enemies:
             enemy.update()
 
-        # Update score
-        score_text.set_text(str(PLAYER.score))
+        for projectile in projectiles:
+            projectile.update()
+
+        # Update UI
+        if PLAYER is not None:
+            score_text.set_text(str(PLAYER.score))
+            lives_text.set_text(str(PLAYER.lives))
 
         display_surface.fill((0, 0, 0))
 
@@ -118,4 +146,7 @@ def start():
 
 
 def game_win():
-    completion_text = game.objects.Text(FONT, "You Won!", (255, 255, 255), Vector2(WIDTH // 4, HEIGHT // 2))
+    completion_text = game.objects.Text(FONT, "YOU WON!", GREEN, Vector2(80, HEIGHT // 2))
+
+def game_fail():
+    fail_text = game.objects.Text(FONT, "YOU FAILED!", RED, Vector2(40, HEIGHT // 2))

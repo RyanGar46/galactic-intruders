@@ -1,4 +1,5 @@
 import time
+import random
 
 import pygame
 from pygame.math import Vector2
@@ -81,16 +82,23 @@ class LivingSprite(MoveableSprite):
 
 
 class Projectile(MoveableSprite):
-    def __init__(self, width: int, height: int, position: Vector2, velocity: Vector2, origin: "Player"):
+    def __init__(self, width: int, height: int, position: Vector2, velocity: Vector2, origin: LivingSprite):
         super().__init__(width, height, position, velocity)
         self.origin = origin
+
+        game.start.projectiles.append(self)
 
     def update(self):
         super().update()
 
-        for enemy in game.start.enemies:
-            if enemy.rect.collidepoint(self.rect.center):
-                self.on_collision(enemy)
+        if isinstance(self.origin, Enemy):
+            if game.start.PLAYER is not None:
+                if game.start.PLAYER.rect.collidepoint(self.rect.center):
+                    self.on_collision(game.start.PLAYER)
+        elif isinstance(self.origin, Player):
+            for enemy in game.start.enemies:
+                if enemy.rect.collidepoint(self.rect.center):
+                    self.on_collision(enemy)
 
     def on_collision(self, other: LivingSprite):
         other.kill()
@@ -98,15 +106,15 @@ class Projectile(MoveableSprite):
         self.kill()
 
     def kill(self):
-        self.origin.projectiles.remove(self)
+        game.start.projectiles.remove(self)
         super().remove()
 
 
 class Player(LivingSprite):
     def __init__(self, size_x: int, size_y: int, position: Vector2, health: int):
+        self.originial_position = position
         super().__init__(size_x, size_y, position, Vector2(0, 0), health)
 
-        self.projectiles = []
         self.fireCooldown = 0
 
         # Movement
@@ -115,16 +123,13 @@ class Player(LivingSprite):
         self.frame = 0
 
         self.score = 0
+        self.lives = 3
 
     def update(self):
         super().update()
 
         if self.fireCooldown > 0:
             self.fireCooldown = max((0, self.fireCooldown - self.deltaTime))
-
-        # Update projectiles
-        for projectile in self.projectiles:
-            projectile.update()
 
     def check_input(self, keys, mouse):
         """
@@ -134,14 +139,13 @@ class Player(LivingSprite):
         # Movement
         direction = Vector2(0, 0)
         direction.x += get_key_right(keys) - get_key_left(keys)
-        self.velocity = direction
+        self.velocity = direction * 2
         self.update()
 
         # Projectile
         if self.fireCooldown <= 0 and get_key_fire(keys, mouse):
-            projectile = Projectile(2, 8, Vector2(self.rect.centerx, self.rect.top + 1), Vector2(0, 1), self)
-            self.projectiles.append(projectile)
-            self.fireCooldown = 0.5
+            projectile = Projectile(2, 8, Vector2(self.rect.centerx, self.rect.top + 1), Vector2(0, 8), self)
+            self.fireCooldown = 1
 
         # Debug
         if keys[pygame.K_LCTRL] and keys[pygame.K_LSHIFT] and get_key_fire(keys, mouse):
@@ -158,6 +162,19 @@ class Player(LivingSprite):
         super().on_kill_enemy(enemy)
         self.score += enemy.value
 
+    def kill(self):
+        super().kill()
+        game.start.PLAYER = None
+        if self.lives > 0:
+            self.respawn()
+        elif not game.start.GAME_FAIL:
+            game.start.game_fail()
+
+    def respawn(self):
+        game.start.PLAYER = Player(32, 16, Vector2(game.start.WIDTH // 2, game.start.HEIGHT - 32), 10)
+        game.start.PLAYER.kills = self.kills
+        game.start.PLAYER.lives = self.lives - 1
+        game.start.PLAYER.score = self.score
 
 class Enemy(LivingSprite):
     def __init__(self, size_x: int, size_y: int, position: Vector2, health, value: int, enemy_type: int):
@@ -188,6 +205,9 @@ class Enemy(LivingSprite):
             self.move_timer -= self.deltaTime
 
         self.update_position()
+
+        if random.randint(0, 2000) == 0:
+            Projectile(2, 8, Vector2(self.rect.centerx, self.rect.bottom), Vector2(0, -8), self)
 
     def kill(self):
         game.start.enemies.remove(self)
