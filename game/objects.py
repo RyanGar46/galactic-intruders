@@ -9,7 +9,7 @@ from game.input import get_key_right, get_key_left, get_key_fire
 from game.util import get_texture
 
 
-class MoveableSprite(pygame.sprite.Sprite):
+class MovableSprite(pygame.sprite.Sprite):
     def __init__(self, size_x: int, size_y: int, position: Vector2, velocity: Vector2):
         super().__init__()
         self.size = Vector2(size_x, size_y)
@@ -47,11 +47,11 @@ class MoveableSprite(pygame.sprite.Sprite):
 
     def get_texture(self) -> pygame.Surface:
         surface = pygame.Surface((1, 1))
-        surface.fill((128, 255, 40))
+        surface.fill(game.start.GREEN)
         return surface
 
 
-class LivingSprite(MoveableSprite):
+class LivingSprite(MovableSprite):
     def __init__(self, size_x: int, size_y: int, position: Vector2, velocity: Vector2, health: int):
         super().__init__(size_x, size_y, position, velocity)
         self._health = health
@@ -81,7 +81,7 @@ class LivingSprite(MoveableSprite):
         self.kills += 1
 
 
-class Projectile(MoveableSprite):
+class Projectile(MovableSprite):
     def __init__(self, width: int, height: int, position: Vector2, velocity: Vector2, origin: LivingSprite):
         super().__init__(width, height, position, velocity)
         self.origin = origin
@@ -101,10 +101,10 @@ class Projectile(MoveableSprite):
             if collision != -1:
                 self.on_collision(game.start.enemies[collision])
 
-        # Sheilds
-        for shield in game.start.shields:
-            if shield.rect.collidepoint(self.rect.center):
-                self.on_collision(shield)
+        # Shields
+        collision = self.rect.collidelist(game.start.shields)
+        if collision != -1:
+            self.on_collision(game.start.shields[collision])
 
     def on_collision(self, other: LivingSprite):
         other.kill()
@@ -118,7 +118,7 @@ class Projectile(MoveableSprite):
 
 class Player(LivingSprite):
     def __init__(self, size_x: int, size_y: int, position: Vector2, health: int):
-        self.originial_position = position
+        self.original_position = position
         super().__init__(size_x, size_y, position, Vector2(0, 0), health)
 
         self.fireCooldown = 0
@@ -150,7 +150,7 @@ class Player(LivingSprite):
 
         # Projectile
         if self.fireCooldown <= 0 and get_key_fire(keys, mouse):
-            projectile = Projectile(2, 8, Vector2(self.rect.centerx, self.rect.top + 1), Vector2(0, 8), self)
+            Projectile(2, 8, Vector2(self.rect.centerx, self.rect.top + 1), Vector2(0, 8), self)
             self.fireCooldown = 1
 
         # Debug
@@ -181,6 +181,7 @@ class Player(LivingSprite):
         game.start.PLAYER.kills = self.kills
         game.start.PLAYER.lives = self.lives - 1
         game.start.PLAYER.score = self.score
+
 
 class Enemy(LivingSprite):
     def __init__(self, size_x: int, size_y: int, position: Vector2, health, value: int, enemy_type: int):
@@ -232,7 +233,7 @@ class Shield(LivingSprite):
     def __init__(self, size: Vector2, position: Vector2):
         super().__init__(size.x, size.y, position, Vector2(0, 0), 1)
         game.start.shields.append(self)
-    
+
     def kill(self):
         super().kill()
         game.start.shields.remove(self)
@@ -242,7 +243,9 @@ class Shield(LivingSprite):
         shield_size = 4
         for y in range(size_y):
             for x in range(size_x):
-                Shield(Vector2(shield_size, shield_size), Vector2(position.x + (x * shield_size), position.y + (y * shield_size)))
+                Shield(Vector2(shield_size, shield_size),
+                       Vector2(position.x + (x * shield_size), position.y + (y * shield_size)))
+
 
 class Text:
     def __init__(self, font: pygame.font.Font, text: str, color: tuple[int, int, int], position: Vector2):

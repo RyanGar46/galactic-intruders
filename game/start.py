@@ -152,8 +152,8 @@ def start():
 
 
 def game_win():
-    completion_text = game.objects.Text(FONT, "YOU WON!", GREEN, Vector2(80, HEIGHT // 2))
+    game.objects.Text(FONT, "YOU WON!", GREEN, Vector2(80, HEIGHT // 2))
 
 
 def game_fail():
-    fail_text = game.objects.Text(FONT, "YOU FAILED!", RED, Vector2(40, HEIGHT // 2))
+    game.objects.Text(FONT, "YOU FAILED!", RED, Vector2(40, HEIGHT // 2))
