@@ -106,7 +106,11 @@ def start():
         }
     ], Vector2(0, HEIGHT - 16))
 
-    game.objects.Shield.create_shield(WIDTH, 8, Vector2(0, HEIGHT // 2))
+    shield_amount = 4
+    shield_width = 12
+
+    for x in range(shield_amount):
+        game.objects.Shield.create_shield(shield_width, 8, Vector2(x * (WIDTH // shield_amount) + (shield_width * 2), HEIGHT - 80))
 
     while True:
         # Check win conditions

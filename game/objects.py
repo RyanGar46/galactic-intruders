@@ -131,6 +131,8 @@ class Player(LivingSprite):
         self.score = 0
         self.lives = 3
 
+        self.projectile = None
+
     def update(self):
         super().update()
 
@@ -145,12 +147,17 @@ class Player(LivingSprite):
         # Movement
         direction = Vector2(0, 0)
         direction.x += get_key_right(keys) - get_key_left(keys)
-        self.velocity = direction * 2
-        self.update()
+
+        # Right bounds check
+        if not (self.rect.right == game.start.WIDTH + 2 and direction.x == 1):
+            # Left bounds check
+            if not(self.rect.left == -4 and direction.x == -1):
+                self.velocity = direction * 2
+                self.update()
 
         # Projectile
         if self.fireCooldown <= 0 and get_key_fire(keys, mouse):
-            Projectile(2, 8, Vector2(self.rect.centerx, self.rect.top + 1), Vector2(0, 8), self)
+            self.projectile = Projectile(2, 8, Vector2(self.rect.centerx, self.rect.top + 1), Vector2(0, 8), self)
             self.fireCooldown = 1
 
         # Debug
@@ -166,6 +173,7 @@ class Player(LivingSprite):
 
     def on_kill_enemy(self, enemy: LivingSprite):
         super().on_kill_enemy(enemy)
+        self.fireCooldown = 0
         self.score += enemy.value
 
     def kill(self):
@@ -183,8 +191,13 @@ class Player(LivingSprite):
         game.start.PLAYER.score = self.score
 
 
+enemies = 0
+
+
 class Enemy(LivingSprite):
     def __init__(self, size_x: int, size_y: int, position: Vector2, health, value: int, enemy_type: int):
+        global enemies
+
         self.enemy_type = enemy_type
         super().__init__(size_x, size_y, position, Vector2(0, 0), health)
 
@@ -193,6 +206,7 @@ class Enemy(LivingSprite):
         self.direction = 1
         self.rows = 1
         self.value = value
+        enemies += 1
 
     def update(self):
         super().update()
@@ -207,7 +221,7 @@ class Enemy(LivingSprite):
                 self.rows += 1
 
             self.moves += 1
-            self.move_timer = (self.rows * 10) ** -0.5
+            self.move_timer = (enemies ** 1.75) / 800
         else:
             self.move_timer -= self.deltaTime
 
@@ -217,6 +231,8 @@ class Enemy(LivingSprite):
             Projectile(2, 8, Vector2(self.rect.centerx, self.rect.bottom), Vector2(0, -8), self)
 
     def kill(self):
+        global enemies
+        enemies -= 1
         game.start.enemies.remove(self)
         super().kill()
 
